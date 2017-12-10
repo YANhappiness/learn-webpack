@@ -5,6 +5,8 @@
 webpack 官网 ： http://webpack.github.io/docs/
 webpack 慕课网webpack教程 ： https://www.imooc.com/learn/802
 webpack 插件html-webpack-plugin npm : https://www.npmjs.com/package/html-webpack-plugin
+babel-loader 用于支持es高版本语法 插件官网 http://babeljs.io/
+
 
 - webpack-demo 目录结构
     -dist //打包后的静态资源
@@ -14,6 +16,8 @@ webpack 插件html-webpack-plugin npm : https://www.npmjs.com/package/html-webpa
     -src  //引用库文件
         -script
         -style
+    -temp  //html模版
+        -index.ejs
     -index.html 
     -package-lock.json
     -package.json  //npm 配置文件
@@ -60,11 +64,12 @@ webpack 插件html-webpack-plugin npm : https://www.npmjs.com/package/html-webpa
     }
     
     其中数组和对象适用于多入口文件，如果多个入口而只有一个output path 则会覆盖之前文件，仅保留一个文件
-    Multiple assets emit to the same filename bundle.js 报错
+    Multiple assets emit to the same filename bundle.js //报错
 
 11. output path<绝对路径> filename文件名
     当多个入口文件时 filename需要通过[name]、[hash]、[chunkhash]占位符区别
 
+- 插件内应用
 12. 利用插件在页面中引用动态的js文件 html-webpack-plugin
     npm install html-webpack-plugin --save-dev  //安装
     
@@ -94,7 +99,7 @@ webpack 插件html-webpack-plugin npm : https://www.npmjs.com/package/html-webpa
     此时，plugins:[inject:false] //不允许插入
 
 15. output 'publicpath' 上线引用地址
-    publicPath: 'http://cdn.com/' //上线地址  结尾有/，表示path+filename位于占位符之后
+    publicPath: 'http://cdn.com/' //上线地址  结尾有/，占位符
 
 16. 文件压缩 minify
     minify:{
@@ -103,6 +108,70 @@ webpack 插件html-webpack-plugin npm : https://www.npmjs.com/package/html-webpa
     }
 
     参考链接 ： https://github.com/kangax/html-minifier#options-quick-reference
+
+17. 配置多页面应用 应用不同打包js
+    plugins:[
+        new htmlWebpackPlugin({
+            filename:"a.html",
+            template:"./temp/temp.ejs",
+            inject:"body",
+            title:"a.html",
+            chunks:["a"]   //chunks指定引用入口文件的文件名
+        }),
+            new htmlWebpackPlugin({
+            filename:"b.html",
+            template:"./temp/temp.ejs",
+            inject:"body",
+            title:"b.html",
+            <!-- chunks:["b"],   //chunks引用入口文件的文件名 -->
+            excludeChunks:["a"]  //引用entry中除了a之外的所有文件
+        }),
+    ]
+
+18. loader以及loader特性
+    -src        单页面目录结构
+        -components  //组件文件夹
+            -layer  //layer组件
+                -layer.html
+                -layer.js
+                -layer.less
+        -app.js  //文件入口
+    
+    loader用于预处理文件，可以将文件从不同的语言转化为javascript
+    安装： npm install <loader-name>
+    使用：
+    01. require声明中指定loader 
+        require("./loader!./dir/file.txt"); 
+    02. 配置文件中 配置 test:正则配置符合条件的文件 ， loader/loaders引用需要加载的loader
+        {
+        module: {
+            loaders: [
+                { test: /\.jade$/, loader: "jade" },
+                // => "jade" loader is used for ".jade" files
+                { test: /\.css$/, loader: "style!css" },
+                // => "style" and "css" loader is used for ".css" files
+                // Alternative syntax:
+                { test: /\.css$/, loaders: ["style", "css"] },
+            ]
+        }
+    }
+    03. cli执行命令时指定
+        $ webpack --module-bind jade --module-bind 'css=style!css'
+
+19. 使用babel转化为js语法
+    安装： npm install --save-dev babel-loader babel-core
+    配置： 
+    module: {
+        rules: [
+            { test: /\.js$/, exclude: /node_modules/, loader: "babel-loader" }
+        ]
+    }
+    通过指定presets来生成不同支持版本 es5/es6/es7...
+    //该插件为babel插件，使用前需要安装
+    npm install babel-presets-latest --save-dev
+    {
+     "presets": ["env"]   //latest
+    }
 
 
 
