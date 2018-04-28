@@ -1,0 +1,1 @@
+var data = "webpack test";

@@ -1,0 +1,14 @@
+{
+  "name": "demo09",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "npx cross-env DEBUG=true webpack-dev-server --open",
+    "product": "npx cross-env DEBUG=false webpack-dev-server --open",
+    "bulid":"wenpack -p"
+  },
+  "author": "",
+  "license": "ISC"
+}
+
